@@ -16,11 +16,10 @@ def main():
     """
 
     cursor.execute(sql_query)
-    playlists: list[tuple] = cursor.fetchall()
+    playlist: list[tuple] = cursor.fetchall()
 
-    print("All Playlists in the Mixxx database:")
-    for playlist in playlists:
-        print(f"Position: {playlist[0]}, Name: {playlist[1]}, Artiist: {playlist[2]}, ID: {playlist[3]}")
+    for track in playlist:
+        print(f"POS: {track[0]}, ID: {track[3]}, NAME: {track[1]}, ARTIST: {track[2]}")
 
     cursor.close()
     conn.close()
