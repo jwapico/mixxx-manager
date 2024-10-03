@@ -1,6 +1,43 @@
 import sqlite3
 from sqlite3 import Connection, Cursor
 from typing import Any
+import os
+import spotipy
+import spotipy.util as util
+import json
+
+def get_spotify_liked() -> dict:
+    client_id: str = os.getenv('CLIENT_ID')
+    client_secret: str = os.getenv('CLIENT_SECRET')
+    redirect_uri: str = os.getenv('REDIRECT_URI')
+    username: str = os.getenv("SPOTIFY_USERNAME")
+    scope: str = "user-library-read"
+
+    token = util.prompt_for_user_token(username,
+                                   scope,
+                                   client_id=client_id,
+                                   client_secret=client_secret,
+                                   redirect_uri=redirect_uri)
+    
+    more_tracks: bool = True
+    response = {}
+    i: int = 0
+
+    if token:
+        while more_tracks:
+            sp = spotipy.Spotify(auth=token)
+            results = sp.current_user_saved_tracks(offset=i, limit=50)
+            response[i] = results
+            i += 50
+
+            if results['next'] is None:
+                more_tracks = False
+
+    # with open('liked_songs.json', 'w') as fp:
+    #     json.dump(response, fp)
+
+    return response
+
 
 def main():
     conn: Connection = sqlite3.connect('mixxxdb.sqlite')
@@ -25,4 +62,6 @@ def main():
     conn.close()
 
 if __name__ == "__main__":
-    main()
+    # main()
+    spotify_liked: dict = get_spotify_liked()
+    print(spotify_liked)
